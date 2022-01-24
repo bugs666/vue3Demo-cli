@@ -8,6 +8,11 @@ import {reactive} from 'vue';
 export default {
 
   setup(props, context) {
+    let data = reactive({
+      todos: [
+        {id: []}
+      ]
+    });
     return {};
   }
 }
