@@ -1,41 +1,55 @@
 <template>
   <div class="todo-item">
-    <el-checkbox :label="todoData" v-show="!isEdit"/>
-    <el-input v-model="name" placeholder="请输入内容" v-show="isEdit" @change="changeName"/>
+    <el-checkbox :label="todoData" v-show="!data.isEdit"/>
+    <el-input v-model="data.name" placeholder="请输入内容" v-show="data.isEdit" @change="changeName"/>
     <div class="item-right">
-      <i class="el-icon-edit edit-item-icon" @click="setEdit"></i>
+      <el-icon @click="setEdit" class="edit-item-icon" :size="20">
+        <edit/>
+      </el-icon>
       <el-button type="text" class="remove-btn" @click="onRemove">删除</el-button>
     </div>
   </div>
 </template>
 
 <script>
+import {reactive} from "vue";
+import {Edit} from '@element-plus/icons-vue'
+
 export default {
-  name: "TodoItem",
-  data() {
-    return {
-      isEdit: false,
-      name: this.todoData
-    }
-  },
   props: {
     todoData: {
       type: String,
       required: true
     }
   },
-  methods: {
-    onRemove() {
-      this.$emit('removeItem');
-    },
-    setEdit() {
-      this.isEdit = true;
-    },
-    changeName(val) {
-      this.$emit('changeTodoName', val);
-      this.isEdit = false;
+  emits: ['removeItem', 'changeTodoName'],
+  components: {Edit},
+  setup(props, context) {
+
+    const {emit} = context;
+
+    let data = reactive({
+      isEdit: false,
+      name: props.todoData
+    });
+
+    function onRemove() {
+      emit('removeItem');
     }
-  }
+
+    function setEdit() {
+      data.isEdit = true;
+    }
+
+    function changeName(val) {
+      emit('changeTodoName', val);
+      data.isEdit = false;
+    }
+
+    return {
+      data, onRemove, setEdit, changeName
+    }
+  },
 }
 </script>
 
@@ -73,7 +87,6 @@ export default {
 
   .edit-item-icon {
     display: none;
-    font-size: 16px;
   }
 }
 </style>

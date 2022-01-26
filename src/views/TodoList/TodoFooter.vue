@@ -6,8 +6,9 @@
 </template>
 
 <script>
+import {ref} from 'vue';
+
 export default {
-  name: "TodoFooter",
   props: {
     all: {
       type: Number,
@@ -23,25 +24,32 @@ export default {
       default: false
     },
   },
-  data() {
+  emits: ['selectAllItem', 'removeAllReady'],
+  setup(_, context) {
+
+    const {emit} = context;
+
+    let isSelect = ref(false);
+
+    function onSelect(val) {
+      emit('selectAllItem', val);
+    }
+
+    function onRemove() {
+      emit('removeAllReady');
+    }
+
     return {
-      isSelect: false
+      isSelect: isSelect.value,
+      onSelect, onRemove
     }
   },
-  created() {
-    this.isSelect = this.all === this.ready ? this.all !== 0 : false;
-  },
-  updated() {
-    this.isSelect = this.all === this.ready ? this.all !== 0 : false;
-  },
-  methods: {
-    onSelect(val) {
-      this.$eventBus.$emit('selectAllItem', val);
-    },
-    onRemove() {
-      this.$emit('removeAllReady');
-    }
-  }
+  // created() {
+  //   this.isSelect = this.all === this.ready ? this.all !== 0 : false;
+  // },
+  // updated() {
+  //   this.isSelect = this.all === this.ready ? this.all !== 0 : false;
+  // },
 }
 </script>
 

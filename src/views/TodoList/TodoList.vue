@@ -41,9 +41,7 @@ export default {
 
     function remove(index) {
       if (index === -1) {
-        let list = data.list.filter(it => !this.allSelect.includes(it));
-        data.list = [...list];
-        return;
+        return data.list = data.list.filter(it => !data.allSelect.includes(it));
       }
       data.list.splice(index, 1);
     }
