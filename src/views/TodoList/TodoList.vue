@@ -2,10 +2,10 @@
   <el-card class="todo-list">
     <header>事件的发布与订阅，组件间的通信</header>
     <div class="todo-head">
-      <el-input v-model="data.input" placeholder="请输入待办项" class="search-input" :clearable="true" @change="addItem"/>
+      <el-input v-model="input" placeholder="请输入待办项" class="search-input" :clearable="true" @change="addItem"/>
       <el-button type="primary" @click="resetData" size="medium">重置数据</el-button>
     </div>
-    <el-checkbox-group v-model="data.allSelect">
+    <el-checkbox-group v-model="allSelect">
       <div v-for="(item,index) in currentList" :key="index">
         <transition name="removeItem" appear>
           <TodoItem :todoData="item" @removeItem="()=>remove(index)"
@@ -16,7 +16,7 @@
     </el-checkbox-group>
     <div v-show="currentList.length ===0">暂无数据</div>
     <hr>
-    <TodoFooter :all="data.list.length" :ready="data.allSelect.length" :is-show-btn="!!data.allSelect.length"
+    <TodoFooter :all="list.length" :ready="allSelect.length" :is-show-btn="!!allSelect.length"
                 @removeAllReady="()=>remove(-1)"/>
   </el-card>
 </template>
@@ -24,7 +24,7 @@
 <script>
 import TodoItem from "./TodoItem";
 import TodoFooter from "./TodoFooter";
-import {reactive, computed, onMounted, watch, watchEffect} from 'vue';
+import {reactive, computed, onMounted, watch, watchEffect, toRefs} from 'vue';
 
 let allTodoKey = '@@ALL_TODO';
 let allReadyKey = '@@ALL_READY';
@@ -84,7 +84,6 @@ export default {
       let ready = window.sessionStorage.getItem(allReadyKey) ?? data.allSelect;
       data.list = typeof todo === 'string' ? JSON.parse(todo) : todo;
       data.allSelect = typeof ready === 'string' ? JSON.parse(ready) : ready;
-      // this.$eventBus.$on('selectAllItem', this.selectAll);
     });
     watch(() => data.list, (val) => {
       data.allSelect = data.allSelect.filter(it => val.includes(it));
@@ -95,8 +94,14 @@ export default {
     //   data.allSelect = data.isSelectAll ? data.list : [];
     // });
     return {
-      data, currentList,
-      remove, selectAll, select, changeTodoName, addItem, resetData
+      ...toRefs(data),
+      currentList,
+      remove,
+      selectAll,
+      select,
+      changeTodoName,
+      addItem,
+      resetData
     };
   }
 }
