@@ -12,6 +12,7 @@
                     @changeTodoName="(name)=>changeTodoName(index,name)"/>
         </transition>
       </div>
+
     </el-checkbox-group>
     <div v-show="currentList.length ===0">暂无数据</div>
     <hr>
@@ -23,7 +24,7 @@
 <script>
 import TodoItem from "./TodoItem";
 import TodoFooter from "./TodoFooter";
-import {reactive, computed} from 'vue';
+import {reactive, computed, onMounted, watch, watchEffect} from 'vue';
 
 let allTodoKey = '@@ALL_TODO';
 let allReadyKey = '@@ALL_READY';
@@ -78,30 +79,25 @@ export default {
       return data.list;
     });
 
+    onMounted(() => {
+      let todo = window.sessionStorage.getItem(allTodoKey) ?? initialList;
+      let ready = window.sessionStorage.getItem(allReadyKey) ?? data.allSelect;
+      data.list = typeof todo === 'string' ? JSON.parse(todo) : todo;
+      data.allSelect = typeof ready === 'string' ? JSON.parse(ready) : ready;
+      // this.$eventBus.$on('selectAllItem', this.selectAll);
+    });
+    watch(() => data.list, (val) => {
+      data.allSelect = data.allSelect.filter(it => val.includes(it));
+      window.sessionStorage.setItem(allTodoKey, JSON.stringify(val));
+    });
+    // watchEffect(() => {
+    //   window.sessionStorage.setItem(allReadyKey, JSON.stringify(data.allSelect));
+    //   data.allSelect = data.isSelectAll ? data.list : [];
+    // });
     return {
       data, currentList,
       remove, selectAll, select, changeTodoName, addItem, resetData
     };
-  },
-  // created() {
-  //   let todo = window.sessionStorage.getItem(allTodoKey) ?? initialList;
-  //   let ready = window.sessionStorage.getItem(allReadyKey) ?? [this.allSelect];
-  //   this.list = typeof todo === 'string' ? [...JSON.parse(todo)] : todo;
-  //   this.allSelect = typeof ready === 'string' ? [...JSON.parse(ready)] : ready;
-  //   this.$eventBus.$on('selectAllItem', this.selectAll);
-  // },
-  watch: {
-    list(val) {
-      let list = this.allSelect.filter(it => val.includes(it));
-      this.allSelect = [...list];
-      window.sessionStorage.setItem(allTodoKey, JSON.stringify(val));
-    },
-    allSelect(val) {
-      window.sessionStorage.setItem(allReadyKey, JSON.stringify(val));
-    },
-    isSelectAll(val) {
-      this.allSelect = val ? [...this.list] : [];
-    }
   }
 }
 </script>
